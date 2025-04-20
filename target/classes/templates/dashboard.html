@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/main :: layout('Dashboard', ~{::div})}">
+<body>
+    <div>
+        <!-- Welcome Header -->
+        <div class="dashboard-header">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1>Welcome Back, <span sec:authentication="name">User</span>!</h1>
+                        <p>Here's what's happening with your insurance today.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="quick-actions">
+                            <a href="/messages/compose" class="quick-action-btn">
+                                <i class="fas fa-envelope"></i>
+                                New Message
+                            </a>
+                            <a href="/notifications" class="quick-action-btn">
+                                <i class="fas fa-bell"></i>
+                                Notifications
+                                <span th:if="${notificationCount > 0}" class="badge bg-danger">
+                                    <span th:text="${notificationCount}">0</span>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="stat-value" th:text="${totalPolicies}">24</div>
+                        <div class="stat-label">Total Policies</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="stat-value" th:text="${activeClaims}">8</div>
+                        <div class="stat-label">Active Claims</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-value" th:text="${pendingTasks}">12</div>
+                        <div class="stat-label">Pending Tasks</div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-value">$<span th:text="${revenue}">24,000</span></div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role-Specific Content -->
+            <!-- Admin Dashboard -->
+            <div sec:authorize="hasRole('ADMIN')" class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <h6>Admin Dashboard</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="action-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <h3>User Management</h3>
+                                        <p>Manage system users, roles, and permissions efficiently.</p>
+                                        <a href="/admin/users" class="btn btn-primary">Manage Users</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="action-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-file-contract"></i>
+                                        </div>
+                                        <h3>Policy Management</h3>
+                                        <p>View and manage all insurance policies in the system.</p>
+                                        <a href="/admin/policies" class="btn btn-primary">Manage Policies</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="action-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </div>
+                                        <h3>Reports & Analytics</h3>
+                                        <p>Access detailed system reports and analytics data.</p>
+                                        <a href="/admin/reports" class="btn btn-primary">View Reports</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Dashboard -->
+            <div sec:authorize="hasRole('AGENT')" class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <h6>Agent Dashboard</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="action-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <h3>Customer Management</h3>
+                                        <p>Manage your customers and their information efficiently.</p>
+                                        <a href="/agent/customers" class="btn btn-primary">Manage Customers</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="action-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-file-contract"></i>
+                                        </div>
+                                        <h3>Policy Management</h3>
+                                        <p>Create and manage customer policies with ease.</p>
+                                        <a href="/agent/policies" class="btn btn-primary">Manage Policies</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="action-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-clipboard-list"></i>
+                                        </div>
+                                        <h3>Claims Processing</h3>
+                                        <p>Process and manage insurance claims efficiently.</p>
+                                        <a href="/agent/claims" class="btn btn-primary">Process Claims</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Dashboard -->
+            <div sec:authorize="hasRole('CUSTOMER')" class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <h6>Customer Dashboard</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="action-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-file-contract"></i>
+                                        </div>
+                                        <h3>My Policies</h3>
+                                        <p>View and manage your active insurance policies.</p>
+                                        <a href="/customer/policies" class="btn btn-primary">View Policies</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="action-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-clipboard-list"></i>
+                                        </div>
+                                        <h3>My Claims</h3>
+                                        <p>Track and manage your insurance claims.</p>
+                                        <a href="/customer/claims" class="btn btn-primary">View Claims</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="action-card">
+                                        <div class="card-icon">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <h3>My Profile</h3>
+                                        <p>Update your personal information and preferences.</p>
+                                        <a href="/customer/profile" class="btn btn-primary">Update Profile</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="recent-activity">
+                        <h3 class="mb-4">Recent Activity</h3>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="activity-details">
+                                <h4>New Policy Created</h4>
+                                <p>Policy #12345 has been created successfully</p>
+                            </div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div class="activity-details">
+                                <h4>Claim Approved</h4>
+                                <p>Claim #54321 has been approved</p>
+                            </div>
+                            <div class="activity-time">5 hours ago</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div class="activity-details">
+                                <h4>Profile Updated</h4>
+                                <p>Your profile information has been updated</p>
+                            </div>
+                            <div class="activity-time">1 day ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

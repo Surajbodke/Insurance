@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Policy Reports - Insurance Management System</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">InsuranceMS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/policies">Back to Policies</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4"><i class="fas fa-chart-line me-2"></i>Policy Reports</h1>
+
+        <div class="row mb-4">
+            <!-- Policy Type Distribution -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Policy Type Distribution</h5>
+                        <canvas id="policyTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Policy Status Distribution -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Policy Status Distribution</h5>
+                        <canvas id="policyStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <!-- Monthly Premium Revenue -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Monthly Premium Revenue</h5>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <!-- Top Customers -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Top Customers by Premium</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Email</th>
+                                        <th>Total Premium</th>
+                                        <th>Policy Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="customer : ${topCustomers}">
+                                        <td th:text="${customer.customerName}">John Doe</td>
+                                        <td th:text="${customer.customerEmail}">john@example.com</td>
+                                        <td>$<span th:text="${#numbers.formatDecimal(customer.totalPremium, 0, 2)}">1000.00</span></td>
+                                        <td th:text="${customer.policyCount}">5</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Policy Expiration Summary -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Policy Expiration Summary</h5>
+                        <canvas id="expirationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script th:inline="javascript">
+        // Policy Type Distribution Chart
+        const policyTypeData = /*[[${policyTypeDistribution}]]*/ {};
+        new Chart(document.getElementById('policyTypeChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(policyTypeData),
+                datasets: [{
+                    data: Object.values(policyTypeData),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // Policy Status Distribution Chart
+        const policyStatusData = /*[[${policyStatusDistribution}]]*/ {};
+        new Chart(document.getElementById('policyStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(policyStatusData),
+                datasets: [{
+                    data: Object.values(policyStatusData),
+                    backgroundColor: ['#4BC0C0', '#FF6384', '#FFCE56', '#36A2EB']
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // Monthly Revenue Chart
+        const revenueData = /*[[${monthlyPremiumRevenue}]]*/ {};
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: Object.keys(revenueData).map(date => {
+                    const [year, month] = date.split('-');
+                    return new Date(year, month - 1).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short'
+                    });
+                }),
+                datasets: [{
+                    label: 'Premium Revenue',
+                    data: Object.values(revenueData),
+                    borderColor: '#36A2EB',
+                    fill: false,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => '$' + value.toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            })
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: context => '$' + context.raw.toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            })
+                        }
+                    }
+                }
+            }
+        });
+
+        // Policy Expiration Chart
+        const expirationData = /*[[${expirationSummary}]]*/ {};
+        new Chart(document.getElementById('expirationChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(expirationData),
+                datasets: [{
+                    label: 'Policies',
+                    data: Object.values(expirationData),
+                    backgroundColor: ['#FF6384', '#FFCE56', '#4BC0C0']
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

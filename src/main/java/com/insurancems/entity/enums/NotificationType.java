@@ -1,0 +1,13 @@
+package com.insurancems.entity.enums;
+
+public enum NotificationType {
+    POLICY_EXPIRING,
+    POLICY_CREATED,
+    POLICY_UPDATED,
+    CLAIM_SUBMITTED,
+    CLAIM_STATUS_UPDATED,
+    PAYMENT_DUE,
+    PAYMENT_RECEIVED,
+    DOCUMENT_REQUIRED,
+    GENERAL_NOTIFICATION
+} 
